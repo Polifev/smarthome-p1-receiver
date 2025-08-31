@@ -1,0 +1,10 @@
+# binary file
+smarthome-p1-receiver
+
+# config files
+clickhouse.yaml
+mqtt.yaml
+
+# ide files
+.idea/
+.vscode/
