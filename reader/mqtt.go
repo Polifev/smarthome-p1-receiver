@@ -74,3 +74,7 @@ func NewMqttReader(cfg MqttConfig) (*MqttReader, error) {
 
 	return &MqttReader{Input: inputChan}, nil
 }
+
+func (reader *MqttReader) GetInputChan() chan []byte {
+	return reader.Input
+}

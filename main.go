@@ -25,19 +25,32 @@ func main() {
 	p := parser.NewParser()
 
 	// Connect MQTT
-	log.Println("[INIT] connecting to MQTT broker...")
-	mqttConfig, err := reader.LoadMqttConfig("mqtt.yaml")
+	//log.Println("[INIT] connecting to MQTT broker...")
+	//mqttConfig, err := reader.LoadMqttConfig("mqtt.yaml")
+	//if err != nil {
+	//	log.Fatalf("unable to read mqtt config: %v", err)
+	//}
+	//
+	//r, err := reader.NewMqttReader(mqttConfig)
+	//if err != nil {
+	//	log.Fatalf("unable to create mqtt reader: %v", err)
+	//}
+
+	// Connect to ESP8266
+	tcpConfig, err := reader.LoadTcpConfig("tcp.yaml")
 	if err != nil {
-		log.Fatalf("unable to read mqtt config: %v", err)
+		log.Fatalf("unable to read tcp config: %v", err)
 	}
 
-	r, err := reader.NewMqttReader(mqttConfig)
+	r, err := reader.NewTcpReader(tcpConfig)
 	if err != nil {
-		log.Fatalf("unable to create mqtt reader: %v", err)
+		log.Fatalf("unable to create tcp reader: %v", err)
 	}
+
+	defer r.Close()
 
 	// Read messages
-	for msg := range r.Input {
+	for msg := range r.GetInputChan() {
 		powerData := p.ParsePayload(msg)
 		err := s.PutData(powerData)
 		if err != nil {

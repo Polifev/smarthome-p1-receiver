@@ -84,13 +84,13 @@ func parseKw(kwStr string) float64 {
 }
 
 func parseTime(str string) time.Time {
-	const format = "060102150405S"
+	const format = "060102150405"
 	location, err := time.LoadLocation("Europe/Brussels")
 	if err != nil {
 		panic(err)
 	}
 
-	t, err := time.ParseInLocation(format, str, location)
+	t, err := time.ParseInLocation(format, str[:12], location)
 	if err != nil {
 		return time.Time{}
 	}

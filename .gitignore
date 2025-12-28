@@ -8,3 +8,6 @@ mqtt.yaml
 # ide files
 .idea/
 .vscode/
+
+# archives
+**/*.tar.gz
