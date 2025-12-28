@@ -2,11 +2,12 @@ package reader
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"log"
 	"net"
 	"os"
+	"strconv"
+	"time"
 
 	"gopkg.in/yaml.v3"
 )
@@ -48,7 +49,10 @@ func LoadTcpConfig(filename string) (TcpConfig, error) {
 }
 
 func NewTcpReader(cfg TcpConfig) (*TcpReader, error) {
-	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", cfg.Host, cfg.Port))
+	d := net.Dialer{
+		Timeout: 1 * time.Second,
+	}
+	conn, err := d.Dial("tcp", net.JoinHostPort(cfg.Host, strconv.Itoa(cfg.Port)))
 	if err != nil {
 		return nil, err
 	}
@@ -62,12 +66,20 @@ func NewTcpReader(cfg TcpConfig) (*TcpReader, error) {
 	go func() {
 		reader := bufio.NewReader(conn)
 		for !tcpReader.stopped {
+			log.Printf("[TCP] reading...")
+			err := conn.SetReadDeadline(time.Now().Add(2 * time.Second))
+			if err != nil {
+				// TODO: crash and restart the connection
+			}
+
 			message, err := reader.ReadString('!')
 			if err != nil {
-				log.Println("read error:", err)
+				log.Println("[TCP] read error:", err)
 				continue
 			}
-			tcpReader.input <- []byte(message)
+			data := []byte(message)
+			tcpReader.input <- data
+			log.Printf("[TCP] %d bytes read !", len(data))
 		}
 	}()
 
