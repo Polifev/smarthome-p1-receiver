@@ -3,7 +3,7 @@ smarthome-p1-receiver
 
 # config files
 clickhouse.yaml
-mqtt.yaml
+tcp.yaml
 
 # ide files
 .idea/
