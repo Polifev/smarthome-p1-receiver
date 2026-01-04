@@ -69,14 +69,18 @@ func NewTcpReader(cfg TcpConfig) (*TcpReader, error) {
 			log.Printf("[TCP] reading...")
 			err := conn.SetReadDeadline(time.Now().Add(2 * time.Second))
 			if err != nil {
-				// TODO: crash and restart the connection
+				log.Println("[TCP] set deadline error:", err)
+				tcpReader.Close()
+				return
 			}
-
 			message, err := reader.ReadString('!')
+
 			if err != nil {
 				log.Println("[TCP] read error:", err)
-				continue
+				tcpReader.Close()
+				return
 			}
+
 			data := []byte(message)
 			tcpReader.input <- data
 			log.Printf("[TCP] %d bytes read !", len(data))
@@ -92,5 +96,7 @@ func (r *TcpReader) GetInputChan() chan []byte {
 
 func (r *TcpReader) Close() error {
 	r.stopped = true
-	return r.conn.Close()
+	err := r.conn.Close()
+	close(r.input)
+	return err
 }

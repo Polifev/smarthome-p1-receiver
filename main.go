@@ -50,7 +50,6 @@ func retryLoop() error {
 		log.Printf("[ERR] unable to create tcp reader: %v", err)
 		return err
 	}
-	defer r.Close()
 
 	// Read messages
 	for msg := range r.GetInputChan() {
